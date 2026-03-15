@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}{{ case.name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-semibold mb-0">{{ case.name }}</h4>
+    <small class="text-muted">{{ case.aircraft.name }} ·
+      {{ case.get_maneuver_type_display }}</small>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'loadcase-edit' case.pk %}"
+       class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-pencil me-1"></i>Edit
+    </a>
+    <a href="{% url 'loadcase-delete' case.pk %}"
+       class="btn btn-outline-danger btn-sm">
+      <i class="bi bi-trash me-1"></i>Delete
+    </a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <!-- Load parameters -->
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">Load Parameters</h6>
+        <table class="table table-sm mb-0">
+          <tr><td class="text-muted">Load Factor (nz)</td>
+              <td class="fw-medium">{{ case.load_factor_nz }} g</td></tr>
+          <tr><td class="text-muted">Speed</td>
+              <td>{{ case.speed_ktas }} KTAS
+                <small class="text-muted">({{ case.speed_ms }} m/s)</small></td></tr>
+          <tr><td class="text-muted">Altitude</td>
+              <td>{{ case.altitude_ft }} ft</td></tr>
+          <tr><td class="text-muted">Dynamic Pressure</td>
+              <td>{{ case.dynamic_pressure }} Pa</td></tr>
+          <tr><td class="text-muted">Flight Phase</td>
+              <td>{{ case.get_flight_phase_display }}</td></tr>
+          <tr><td class="text-muted">Severity</td>
+              <td>
+                <span class="badge badge-{{ case.severity_label }} text-white">
+                  {{ case.severity_label }}
+                </span>
+              </td></tr>
+          <tr><td class="text-muted">Critical</td>
+              <td>
+                {% if case.is_critical %}
+                  <span class="text-danger fw-medium">Yes</span>
+                {% else %}
+                  <span class="text-success">No</span>
+                {% endif %}
+              </td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report -->
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">Analysis Report</h6>
+        {% if report %}
+          <table class="table table-sm mb-3">
+            <tr><td class="text-muted">Max Bending Moment</td>
+                <td>{{ report.max_bending_moment }} Nm</td></tr>
+            <tr><td class="text-muted">Max Shear Force</td>
+                <td>{{ report.max_shear_force }} N</td></tr>
+            <tr><td class="text-muted">Safety Factor</td>
+                <td class="fw-medium">{{ report.safety_factor }}</td></tr>
+            <tr><td class="text-muted">Margin of Safety</td>
+                <td class="fw-medium
+                  {% if report.margin_of_safety >= 0 %}text-success
+                  {% else %}text-danger{% endif %}">
+                  {{ report.margin_of_safety }}
+                </td></tr>
+            <tr><td class="text-muted">Status</td>
+                <td>{{ report.get_status_display }}</td></tr>
+            <tr><td class="text-muted">Structurally Safe</td>
+                <td>
+                  {% if report.is_safe %}
+                    <i class="bi bi-check-circle-fill text-success"></i> Yes
+                  {% else %}
+                    <i class="bi bi-x-circle-fill text-danger"></i> No
+                  {% endif %}
+                </td></tr>
+          </table>
+        {% else %}
+          <p class="text-muted" style="font-size:.9rem;">
+            No report filed yet.
+          </p>
+          <a href="{% url 'report-create' case.pk %}"
+             class="btn btn-dark btn-sm">
+            <i class="bi bi-plus-lg me-1"></i>File Report
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Notes -->
+  {% if case.notes %}
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-2">Notes</h6>
+        <p class="mb-0 text-muted">{{ case.notes }}</p>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<a href="{% url 'loadcase-list' %}"
+   class="btn btn-outline-secondary btn-sm mt-4">
+  ← Back to Load Cases
+</a>
+{% endblock %}

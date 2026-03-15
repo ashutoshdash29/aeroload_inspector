@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}AeroLoad Inspector{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background: #f8f9fa; }
+    .sidebar {
+      min-height: 100vh;
+      background: #1a1f2e;
+      padding-top: 1rem;
+    }
+    .sidebar .nav-link {
+      color: #adb5bd;
+      padding: .6rem 1.2rem;
+      border-radius: 6px;
+      margin: 2px 8px;
+    }
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link.active {
+      background: #2d3548;
+      color: #fff;
+    }
+    .sidebar .brand {
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: .8rem 1.2rem 1.4rem;
+      display: block;
+      letter-spacing: .5px;
+    }
+    .stat-card {
+      border: none;
+      border-radius: 12px;
+      transition: transform .15s;
+    }
+    .stat-card:hover { transform: translateY(-3px); }
+    .badge-HIGH    { background: #dc3545; }
+    .badge-MEDIUM  { background: #fd7e14; }
+    .badge-LOW     { background: #198754; }
+    .main-content  { padding: 2rem; }
+  </style>
+</head>
+<body>
+
+{% if user.is_authenticated %}
+<div class="d-flex">
+
+  <!-- Sidebar -->
+  <div class="sidebar" style="width:220px; min-width:220px;">
+    <span class="brand">✈ AeroLoad</span>
+    <nav class="nav flex-column">
+      <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+         href="{% url 'dashboard' %}">
+        <i class="bi bi-speedometer2 me-2"></i>Dashboard
+      </a>
+      <a class="nav-link {% if 'aircraft' in request.resolver_match.url_name %}active{% endif %}"
+         href="{% url 'aircraft-list' %}">
+        <i class="bi bi-airplane me-2"></i>Aircraft
+      </a>
+      <a class="nav-link {% if 'loadcase' in request.resolver_match.url_name %}active{% endif %}"
+         href="{% url 'loadcase-list' %}">
+        <i class="bi bi-activity me-2"></i>Load Cases
+      </a>
+      <a class="nav-link" href="{% url 'export-csv' %}">
+        <i class="bi bi-download me-2"></i>Export CSV
+      </a>
+      <hr style="border-color:#2d3548; margin: .5rem 1rem;">
+      <a class="nav-link" href="{% url 'logout' %}">
+        <i class="bi bi-box-arrow-left me-2"></i>Logout
+      </a>
+    </nav>
+    <div style="color:#6c757d; font-size:.75rem; padding:1rem 1.2rem; margin-top:auto;">
+      {{ user.username }}
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="flex-grow-1 main-content">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}
+  </div>
+
+</div>
+{% else %}
+  <div class="container">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-danger mt-3">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    {% block auth_content %}{% endblock %}
+  </div>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

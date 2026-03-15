@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}File Report{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h4 class="fw-semibold mb-1">File Analysis Report</h4>
+    <p class="text-muted mb-4" style="font-size:.9rem;">
+      For: {{ case.name }}
+    </p>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4">
+        <form method="post">
+          {% csrf_token %}
+          {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label fw-medium">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+              <div class="text-danger" style="font-size:.85rem;">
+                {{ field.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+          <div class="d-flex gap-2 mt-4">
+            <button class="btn btn-dark">Save Report</button>
+            <a href="{% url 'loadcase-detail' case.pk %}"
+               class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

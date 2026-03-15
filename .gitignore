@@ -1,0 +1,6 @@
+aeroload_inspector_env/
+.env
+__pycache__/
+*.pyc
+db.sqlite3
+staticfiles/

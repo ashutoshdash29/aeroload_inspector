@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — AeroLoad{% endblock %}
+{% block content %}
+
+<h4 class="fw-semibold mb-4">Dashboard</h4>
+
+<!-- Stat cards -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-lg-3">
+    <div class="card stat-card bg-dark text-white">
+      <div class="card-body">
+        <div style="font-size:2rem;">{{ aircraft_count }}</div>
+        <div class="text-secondary" style="font-size:.85rem;">Aircraft registered</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card stat-card" style="background:#e8f4fd;">
+      <div class="card-body">
+        <div style="font-size:2rem; color:#0d6efd;">{{ load_case_count }}</div>
+        <div class="text-muted" style="font-size:.85rem;">Load cases</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card stat-card" style="background:#fdecea;">
+      <div class="card-body">
+        <div style="font-size:2rem; color:#dc3545;">{{ critical_count }}</div>
+        <div class="text-muted" style="font-size:.85rem;">Critical cases</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="card stat-card" style="background:#eafaf1;">
+      <div class="card-body">
+        <div style="font-size:2rem; color:#198754;">{{ report_count }}</div>
+        <div class="text-muted" style="font-size:.85rem;">Reports filed</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart + Recent cases -->
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">Load Factor Distribution</h6>
+        <canvas id="loadChart" height="120"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">Recent Load Cases</h6>
+        {% for case in recent_cases %}
+        <div class="d-flex justify-content-between align-items-center py-2
+                    border-bottom">
+          <div>
+            <a href="{% url 'loadcase-detail' case.pk %}"
+               class="text-decoration-none fw-medium text-dark"
+               style="font-size:.9rem;">{{ case.name }}</a>
+            <div class="text-muted" style="font-size:.78rem;">
+              {{ case.aircraft.name }}
+            </div>
+          </div>
+          <span class="badge badge-{{ case.severity_label }} text-white"
+                style="font-size:.72rem;">
+            {{ case.severity_label }}
+          </span>
+        </div>
+        {% empty %}
+        <p class="text-muted" style="font-size:.9rem;">No load cases yet.</p>
+        {% endfor %}
+        <a href="{% url 'loadcase-create' %}"
+           class="btn btn-sm btn-outline-dark mt-3 w-100">
+          + New Load Case
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+fetch('/api/loadcases/')
+  .then(r => r.json())
+  .then(data => {
+    const results = data.results ?? data;
+    const labels  = results.map(d => d.name.length > 18
+                      ? d.name.slice(0,18)+'…' : d.name);
+    const values  = results.map(d => d.load_factor_nz);
+    new Chart(document.getElementById('loadChart'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Load Factor (g)',
+          data: values,
+          backgroundColor: values.map(v =>
+            Math.abs(v) >= 3.5 ? '#dc3545' :
+            Math.abs(v) >= 2.0 ? '#fd7e14' : '#0d6efd'
+          ),
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { title: { display: true, text: 'nz (g)' } }
+        }
+      }
+    });
+  })
+  .catch(() => {
+    document.getElementById('loadChart').closest('.card-body')
+      .insertAdjacentHTML('beforeend',
+        '<p class="text-muted" style="font-size:.85rem;">Add load cases to see the chart.</p>');
+  });
+</script>
+{% endblock %}
