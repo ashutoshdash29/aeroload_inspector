@@ -7,7 +7,7 @@ from django.http                    import HttpResponse
 from django.views.generic           import ListView, DetailView
 from django.contrib.auth.mixins     import LoginRequiredMixin
 import csv
-
+import json
 from .models import Aircraft, LoadCase, AnalysisReport
 from .forms  import AircraftForm, LoadCaseForm, AnalysisReportForm
 
@@ -38,6 +38,8 @@ def register_view(request):
 
 
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -63,7 +65,14 @@ def dashboard(request):
     load_cases  = LoadCase.objects.filter(created_by=user).select_related('aircraft')
     reports     = AnalysisReport.objects.filter(analyst=user)
     critical    = load_cases.filter(is_critical=True)
-
+    # Build chart data safely in Python — not in the template
+    chart_data = json.dumps([
+        {
+            'name': lc.name,
+            'nz':   lc.load_factor_nz,
+        }
+        for lc in load_cases[:10]
+    ])
     context = {
         'aircraft_count':   aircraft.count(),
         'load_case_count':  load_cases.count(),
@@ -71,6 +80,7 @@ def dashboard(request):
         'report_count':     reports.count(),
         'recent_cases':     load_cases[:5],
         'recent_aircraft':  aircraft[:4],
+        'chart_data':      chart_data,
     }
     return render(request, 'loads/dashboard.html', context)
 

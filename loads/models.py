@@ -101,7 +101,7 @@ class LoadCase(models.Model):
         return f"{self.name} | nz={self.load_factor_nz}g @ {self.speed_ktas}kt"
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-updated_at']
         verbose_name = 'Load Case'
         verbose_name_plural = 'Load Cases'
 

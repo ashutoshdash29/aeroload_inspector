@@ -85,14 +85,26 @@
 
 {% block scripts %}
 <script>
-fetch('/api/loadcases/')
-  .then(r => r.json())
-  .then(data => {
-    const results = data.results ?? data;
-    const labels  = results.map(d => d.name.length > 18
-                      ? d.name.slice(0,18)+'…' : d.name);
-    const values  = results.map(d => d.load_factor_nz);
-    new Chart(document.getElementById('loadChart'), {
+  let chartData = [];
+  try {
+    chartData = JSON.parse('{{ chart_data|escapejs }}');
+  } catch(e) {
+    console.log("Chart data parse error:", e);
+  }
+
+  const canvas = document.getElementById('loadChart');
+
+  if (!chartData || chartData.length === 0) {
+    canvas.style.display = 'none';
+    canvas.closest('.card-body').insertAdjacentHTML(
+      'beforeend',
+      '<p class="text-muted mt-2" style="font-size:.85rem;">Add load cases to see the chart.</p>'
+    );
+  } else {
+    const labels = chartData.map(d => d.name);
+    const values = chartData.map(d => d.nz);
+
+    new Chart(canvas, {
       type: 'bar',
       data: {
         labels,
@@ -113,11 +125,6 @@ fetch('/api/loadcases/')
         }
       }
     });
-  })
-  .catch(() => {
-    document.getElementById('loadChart').closest('.card-body')
-      .insertAdjacentHTML('beforeend',
-        '<p class="text-muted" style="font-size:.85rem;">Add load cases to see the chart.</p>');
-  });
+  }
 </script>
 {% endblock %}

@@ -6,7 +6,7 @@ from .models import Aircraft, LoadCase, AnalysisReport
 class AircraftAdmin(admin.ModelAdmin):
     list_display  = ['name', 'registration', 'aircraft_type', 'created_by', 'created_at']
     search_fields = ['name', 'registration']
-    list_filter   = ['created_at']
+    list_filter   = ['name','created_at']
 
 
 @admin.register(LoadCase)
