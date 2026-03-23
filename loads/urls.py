@@ -27,4 +27,10 @@ urlpatterns = [
 
     # Export
     path('export/csv/',                 views.export_csv,      name='export-csv'),
+
+    #Rest
+    path('api/aircraft/',views.AircraftSerializerViewC.as_view(),name='api-aircraft-c'),
+    path('api/aircraft/<int:pk>/',views.AircraftSerializerViewRUD.as_view(),name='api-aircraft-rud'),
+    path('api/loadcase/',views.LoadCaseSerializerView.as_view(),name='api-loadcase'),
+    path('api/report/',views.AnalysisReportSerializerView.as_view(),name='api-report'),
 ]

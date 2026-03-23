@@ -10,7 +10,28 @@ import csv
 import json
 from .models import Aircraft, LoadCase, AnalysisReport
 from .forms  import AircraftForm, LoadCaseForm, AnalysisReportForm
+from .serializers import AircraftSerializer, LoadCaseSerializer, AnalysisReportSerializer
+from rest_framework import generics, viewsets
 
+
+#Rest Framework ________________________________________________________________
+class AircraftSerializerViewRUD(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Aircraft.objects.all()
+    serializer_class = AircraftSerializer
+    lookup_field = 'pk'
+
+class AircraftSerializerViewC(generics.ListCreateAPIView):
+    queryset = Aircraft.objects.all()
+    serializer_class = AircraftSerializer
+
+class LoadCaseSerializerView(generics.ListCreateAPIView):
+    queryset = LoadCase.objects.all()
+    serializer_class = LoadCaseSerializer
+
+class AnalysisReportSerializerView(generics.ListCreateAPIView):
+    queryset = AnalysisReport.objects.all()
+    serializer_class = AnalysisReportSerializer
+    
 
 # ── Auth views ────────────────────────────────────────────────────────────────
 
