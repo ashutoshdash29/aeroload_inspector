@@ -4,15 +4,18 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y procps
+# Install dependencies
+RUN apt-get update && apt-get install -y procps && rm -rf /var/lib/apt/lists/*
 
+# Install Python deps
 COPY requirements.txt .
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
-
+# Copy project
 COPY . .
 
-EXPOSE 8000
+# Optional: collect static files (only if using static)
+# RUN python manage.py collectstatic --noinput
 
-CMD ["sh", "-c", "sleep 5 && python manage.py migrate && gunicorn aeroload_inspector.wsgi:application --bind 0.0.0.0:8000 --workers 2"]
+# Cloud Run uses PORT=8080 automatically
+CMD ["sh", "-c", "gunicorn aeroload_inspector.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 300"]

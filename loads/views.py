@@ -12,6 +12,7 @@ from .models import Aircraft, LoadCase, AnalysisReport
 from .forms  import AircraftForm, LoadCaseForm, AnalysisReportForm
 from .serializers import AircraftSerializer, LoadCaseSerializer, AnalysisReportSerializer
 from rest_framework import generics, viewsets
+from django.core.paginator import Paginator
 
 
 #Rest Framework ________________________________________________________________
@@ -140,10 +141,11 @@ def aircraft_delete(request, pk):
 
 @login_required
 def loadcase_list(request):
-    cases = LoadCase.objects.filter(
-        created_by=request.user
-    ).select_related('aircraft')
-    return render(request, 'loads/loadcase_list.html', {'cases': cases})
+    cases = LoadCase.objects.filter(created_by=request.user).select_related('aircraft')
+    paginator = Paginator(cases, 15)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'loads/loadcase_list.html', {'page_obj': page_obj})
 
 
 @login_required

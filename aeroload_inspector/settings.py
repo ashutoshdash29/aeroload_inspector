@@ -62,6 +62,10 @@ MIDDLEWARE = [
     
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.run.app",
+]
+
 ROOT_URLCONF = "aeroload_inspector.urls"
 
 TEMPLATES = [
@@ -89,9 +93,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "aeroload_db",
-        'USER': 'admin',
-        'PASSWORD': 'admin',
-        'HOST': 'db',
+        'USER': 'postgres',
+        'PASSWORD': 'Ashutos#29',
+        'HOST': '/cloudsql/aeroloadinspector:asia-southeast1:aeroload-postgres',
         'PORT': '5432',
     }
 }
